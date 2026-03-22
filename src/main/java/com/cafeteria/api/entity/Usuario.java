@@ -1,0 +1,29 @@
+package com.cafeteria.api.entity;
+
+import jakarta.persistence.*;
+import lombok.Data;
+
+@Entity
+@Table(name = "usuarios")
+@Data
+public class Usuario {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, length = 100)
+    private String nombre;
+
+    @Column(nullable = false, unique = true, length = 100)
+    private String email;
+
+    @Column(nullable = false, length = 255)
+    private String contrasenia;
+
+    @Column(nullable = false)
+    private Boolean activo = true;
+
+    @ManyToOne
+    @JoinColumn(name = "rol_id", foreignKey = @ForeignKey(name = "FK_usuario_rol"))
+    private Rol rol;
+}
