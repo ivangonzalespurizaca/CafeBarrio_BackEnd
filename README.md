@@ -51,3 +51,14 @@ Si prefiere no editar el archivo, puede configurar las siguientes variables de e
     *El servidor iniciará por defecto en: `http://localhost:8080`*
 *La aplicación estará disponible en el navegador: `http://localhost:4200`*
 > **Datos de Prueba:** El proyecto incluye un componente **`DatabaseLoader`** que se ejecutará automáticamente al iniciar el servidor por primera vez. Este componente se encarga de insertar las categorías y productos de prueba necesarios para que el catálogo sea funcional desde el primer segundo.
+
+---
+
+### 5. Pruebas de Endpoints (Postman)
+
+Se ha incluido una colección completa de Postman para facilitar las pruebas de la API.
+
+**Cómo usarla:**
+1. Importar el archivo `API_Cafeteria.postman_collection.json` en Postman.
+2. Asegurarse de que el Backend esté ejecutándose en `http://localhost:8080`.
+3. Podrá probar el flujo completo: desde listar productos hasta registrar un pedido y cambiar su estado.
