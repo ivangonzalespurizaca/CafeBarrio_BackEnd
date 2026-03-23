@@ -6,8 +6,10 @@ import com.cafeteria.api.service.ProductoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -38,15 +40,24 @@ public class ProductoController {
         return ResponseEntity.ok(productoService.buscarPorCategoria(idCat));
     }
 
-    @PostMapping
-    public ResponseEntity<ProductoDTO> guardar(@Valid @RequestBody ProductoSaveDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(productoService.guardar(dto));
+    @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    public ResponseEntity<ProductoDTO> guardar(
+            @RequestPart("producto") @Valid ProductoSaveDTO dto,
+            @RequestPart(value = "archivo", required = false) MultipartFile archivo) {
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(productoService.guardarConImagen(dto, archivo));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ProductoDTO> actualizar(@PathVariable Long id, @Valid @RequestBody ProductoSaveDTO dto) {
+    @PutMapping(value = "/{id}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    public ResponseEntity<ProductoDTO> actualizar(
+            @PathVariable Long id,
+            @RequestPart("producto") @Valid ProductoSaveDTO dto,
+            @RequestPart(value = "archivo", required = false) MultipartFile archivo) {
+
         dto.setId(id);
-        return ResponseEntity.ok(productoService.guardar(dto));
+
+        return ResponseEntity.ok(productoService.guardarConImagen(dto, archivo));
     }
 
     @DeleteMapping("/{id}")

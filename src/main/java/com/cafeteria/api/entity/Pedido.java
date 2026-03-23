@@ -20,7 +20,7 @@ public class Pedido {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "fecha", insertable = false, updatable = false)
+    @Column(name = "fecha", updatable = false)
     private LocalDateTime fecha;
 
     @Column(name = "cliente_nombre", nullable = false, length = 100)
