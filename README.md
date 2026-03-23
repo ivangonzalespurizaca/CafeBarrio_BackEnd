@@ -1,6 +1,6 @@
 ## Instrucciones de Ejecución
 
-## 1. Requisitos del Entorno (Backend)
+### 1. Requisitos del Entorno (Backend)
 
 Para asegurar la correcta compilación y ejecución de la API, asegúrese de contar con:
 
