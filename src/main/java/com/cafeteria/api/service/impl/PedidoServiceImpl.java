@@ -29,29 +29,33 @@ public class PedidoServiceImpl implements PedidoService {
     private final PedidoMapper pedidoMapper;
 
     @Override
-    @Transactional
+    @Transactional // Si algo falla, se hace Rollback de todo (no se descuenta stock si no se guarda el pedido).
     public PedidoResponseDTO registrarPedido(PedidoRequestDTO dto) {
         Pedido pedido = new Pedido();
         pedido.setFecha(LocalDateTime.now());
         pedido.setClienteNombre(dto.getClienteNombre());
         pedido.setCelular(dto.getCelular());
         pedido.setDireccion(dto.getDireccion());
-        pedido.setEstado(EstadoPedido.PENDIENTE);
+        pedido.setEstado(EstadoPedido.PENDIENTE); // Estado inicial por defecto
 
         List<DetallePedido> detalles = new ArrayList<>();
-        BigDecimal totalAcumulado = BigDecimal.ZERO;
+        BigDecimal totalAcumulado = BigDecimal.ZERO; // Inicializamos el acumulador de dinero
 
         for (DetalleRequestDTO itemDto : dto.getItems()){
+            // Validación de existencia del producto
             Producto producto = productoRepository.findById(itemDto.getIdProducto())
                     .orElseThrow(() -> new RuntimeException("Producto no encontrado: " + itemDto.getIdProducto()));
 
+            // Regla de negocio vital para evitar ventas sin producto físico
             if(producto.getStock() < itemDto.getCantidad()){
                 throw new RuntimeException("Stock insuficiente para producto: " + producto.getNombre());
             }
 
+            // Descontamos el stock del producto
             producto.setStock(producto.getStock() - itemDto.getCantidad());
             productoRepository.save(producto);
 
+            // Creamos el detalle del pedido
             DetallePedido detalle = new DetallePedido();
             detalle.setPedido(pedido);
             detalle.setProducto(producto);
@@ -59,6 +63,7 @@ public class PedidoServiceImpl implements PedidoService {
 
             detalle.setPrecioUnitario(producto.getPrecio());
 
+            // Calculamos el subtotal del detalle (precio unitario * cantidad)
             BigDecimal subtotal = producto.getPrecio().multiply(new BigDecimal(itemDto.getCantidad()));
             detalle.setSubtotal(subtotal);
 

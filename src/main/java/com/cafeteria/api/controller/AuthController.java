@@ -18,12 +18,15 @@ import java.util.Map;
 public class AuthController {
 
     private final UsuarioRepository usuarioRepository;
+
+    // El estándar para cifrar contraseñas. Nunca se comparan textos planos.
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequestDTO loginDTO) {
         return usuarioRepository.findByEmail(loginDTO.getEmail())
                 .map(u -> {
+                    // BCrypt verifica si la clave enviada coincide con el hash de la BD
                     if (passwordEncoder.matches(loginDTO.getPassword(), u.getContrasenia())) {
                         UsuarioDTO response = new UsuarioDTO(
                                 u.getEmail(),

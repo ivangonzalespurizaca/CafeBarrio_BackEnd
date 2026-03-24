@@ -59,14 +59,15 @@ public class ProductoServiceImpl implements ProductoService {
     public ProductoDTO guardarConImagen(ProductoSaveDTO dto, MultipartFile archivo) {
         Producto producto;
 
+        // Validación de existencia de la categoría antes de proceder
         Categoria categoria = categoriaRepository.findById(dto.getIdCategoria())
                 .orElseThrow(() -> new RuntimeException("Categoría no encontrada: " + dto.getIdCategoria()));
 
+        // Lógica dual: Actualizar si existe ID, o Crear si es null
         if (dto.getId() != null) {
-
             producto = productoRepository.findById(dto.getId())
                     .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
-
+            // Actualización manual de campos para evitar sobreescritura accidental
             producto.setNombre(dto.getNombre());
             producto.setPrecio(dto.getPrecio());
             producto.setStock(dto.getStock());
@@ -78,15 +79,21 @@ public class ProductoServiceImpl implements ProductoService {
             producto.setActivo(true);
         }
 
+        // Solo se procesa si se proporciona un nuevo archivo, de lo contrario se mantiene la URL existente
         if (archivo != null && !archivo.isEmpty()) {
             try {
+                // Definición y creación del directorio de subidas si no existe
                 Path directorioImagenes = Paths.get("uploads");
                 if (!Files.exists(directorioImagenes)) Files.createDirectories(directorioImagenes);
 
+                // Generación de nombre único con UUID para evitar conflictos de archivos iguales
                 String nombreArchivo = UUID.randomUUID().toString() + "_" + archivo.getOriginalFilename();
                 Path rutaCompleta = directorioImagenes.resolve(nombreArchivo);
+
+                // Copia física del archivo al servidor
                 Files.copy(archivo.getInputStream(), rutaCompleta, StandardCopyOption.REPLACE_EXISTING);
 
+                // Construcción de la URL de acceso estático
                 producto.setImagenUrl("http://localhost:8080/uploads/" + nombreArchivo);
             } catch (IOException e) {
                 throw new RuntimeException("Error al procesar la imagen", e);
@@ -100,6 +107,7 @@ public class ProductoServiceImpl implements ProductoService {
 
     @Override
     public void eliminarLogico(Long id) {
+        // Toggle de estado: cambia de activo a inactivo o viceversa sin borrar de la BD
         productoRepository.findById(id).ifPresent(producto -> {
             producto.setActivo(!producto.getActivo());
             productoRepository.save(producto);
